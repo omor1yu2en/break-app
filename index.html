@@ -39,6 +39,7 @@
     }
     .token:hover { opacity: 0.55; }
     .num { font-size: clamp(26px, 5vw, 40px); font-weight: 800; }
+    .caption { font-size: clamp(14px, calc(5vw - 15px), 25px); }
     .edit {
       font: inherit;
       font-weight: 800;
@@ -117,8 +118,8 @@
           @blur="commitNumber('minutes')"
           @keydown.enter="commitNumber('minutes')"
         /></template><template v-else><span class="token" @click="startEdit('minutes')">{{ minutes }}</span></template>分休憩を回すと、<br>
-      合計<template v-for="part in totalDurationParts"><span class="num">{{ part.n }}</span>{{ part.label }}</template>かかり、<br>
-      <span class="num">{{ endTimeParts.h }}</span>時<span class="num">{{ endTimeParts.m }}</span>分に終わります。{{ nextDayLabel }}
+      合計<template v-for="part in totalDurationParts"><span class="num">{{ part.n }}</span><span class="caption">{{ part.label }}</span></template>かかり、<br>
+      <span class="num">{{ endTimeParts.h }}</span><span class="caption">時</span><span class="num">{{ endTimeParts.m }}</span><span class="caption">分</span>に終わります。{{ nextDayLabel }}
     </div>
   </div>
 
