@@ -89,7 +89,7 @@
           v-model="startInputValue"
           @blur="commitStart"
           @keydown.enter="commitStart"
-        /></template>、</template><template v-else><span class="token" @click="startEdit('start')">{{ startLabel }}</span>、</template><!--
+        /></template>、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span>{{ startParts.m }}<span class="caption">分から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
       --><template v-if="editing === 'total'"><input
           ref="totalInput"
           class="edit edit-num"
@@ -152,6 +152,12 @@
           if (startFixed.value === null) return '今から';
           const [h, m] = startFixed.value.split(':');
           return `${Number(h)}時${m}分から`;
+        });
+
+        const startParts = computed(() => {
+          if (startFixed.value === null) return null;
+          const [h, m] = startFixed.value.split(':');
+          return { h: String(Number(h)), m };
         });
 
         // 開始時刻を「0時からの分」で返す
@@ -281,7 +287,7 @@
           editing, startPickMode,
           startInputValue, totalInputValue, perInputValue, minutesInputValue,
           startSelect, startInput, totalInput, perInput, minutesInput,
-          startLabel, rotations, totalDuration, totalDurationLabel,
+          startLabel, startParts, rotations, totalDuration, totalDurationLabel,
           totalDurationParts, endTimeParts,
           endTimeLabel, nextDayLabel,
           numStyle, startEdit, commitStart, commitNumber,
