@@ -78,24 +78,16 @@
   <div id="app">
     <div class="sentence">
       <!-- 今から / 時刻 -->
-      <template v-if="editing === 'start'">
-        <select
-          ref="startSelect"
-          class="edit edit-select"
-          v-model="startPickMode"
-          @change="onStartPickChange"
-          @blur="onStartSelectBlur"
-        >
-          <option value="now">今から</option>
-          <option value="fixed">時刻を指定</option>
-        </select><template v-if="startPickMode === 'fixed'"><input
+      <template v-if="editing === 'start'"><input
           ref="startInput"
           class="edit edit-time"
-          type="time"
+          type="text"
+          inputmode="numeric"
+          placeholder="HH:MM"
           v-model="startInputValue"
           @blur="commitStart"
           @keydown.enter="commitStart"
-        /></template>、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span>{{ startParts.m }}<span class="caption">分から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
+        />、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span>{{ startParts.m }}<span class="caption">分から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
       --><template v-if="editing === 'total'"><input
           ref="totalInput"
           class="edit edit-num"
@@ -147,8 +139,6 @@
         const perInputValue = ref('');
         const minutesInputValue = ref('');
 
-        const startPickMode = ref('now');
-        const startSelect = ref(null);
         const startInput = ref(null);
         const totalInput = ref(null);
         const perInput = ref(null);
@@ -236,8 +226,9 @@
         function startEdit(field) {
           editing.value = field;
           if (field === 'start') {
-            startPickMode.value = startFixed.value === null ? 'now' : 'fixed';
-            startInputValue.value = startFixed.value ?? '';
+            startInputValue.value = startFixed.value
+              ? `${Number(startFixed.value.split(':')[0])}:${startFixed.value.split(':')[1]}`
+              : '';
           } else if (field === 'total') {
             totalInputValue.value = total.value;
           } else if (field === 'per') {
@@ -246,34 +237,30 @@
             minutesInputValue.value = minutes.value;
           }
           nextTick(() => {
-            const map = { start: startSelect, total: totalInput, per: perInput, minutes: minutesInput };
+            const map = { start: startInput, total: totalInput, per: perInput, minutes: minutesInput };
             const el = map[field]?.value;
             if (el) { el.focus(); if (el.select) el.select(); }
           });
         }
 
-        function onStartPickChange() {
-          if (startPickMode.value === 'now') {
-            startFixed.value = null;
-            editing.value = null;
-          } else {
-            nextTick(() => { if (startInput.value) startInput.value.focus(); });
-          }
-        }
-
-        function onStartSelectBlur() {
-          if (startPickMode.value === 'now') {
-            startFixed.value = null;
-            editing.value = null;
-          }
-        }
-
         function commitStart() {
-          if (startPickMode.value === 'fixed') {
-            const v = startInputValue.value;
-            startFixed.value = (v === '' || v == null) ? null : v;
-          } else {
+          const v = startInputValue.value.trim();
+          if (!v) {
             startFixed.value = null;
+          } else {
+            let h, m;
+            if (v.includes(':')) {
+              [h, m] = v.split(':').map(Number);
+            } else if (v.length <= 2) {
+              h = Number(v); m = 0;
+            } else {
+              h = Number(v.slice(0, -2)); m = Number(v.slice(-2));
+            }
+            if (!isNaN(h) && !isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+              startFixed.value = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            } else {
+              startFixed.value = null;
+            }
           }
           editing.value = null;
         }
@@ -290,14 +277,13 @@
 
         return {
           total, per, minutes, startFixed,
-          editing, startPickMode,
+          editing,
           startInputValue, totalInputValue, perInputValue, minutesInputValue,
-          startSelect, startInput, totalInput, perInput, minutesInput,
+          startInput, totalInput, perInput, minutesInput,
           startLabel, startParts, rotations, totalDuration, totalDurationLabel,
           totalDurationParts, endTimeParts,
           endTimeLabel, nextDayLabel,
           numStyle, startEdit, commitStart, commitNumber,
-          onStartPickChange, onStartSelectBlur,
         };
       }
     }).mount('#app');
