@@ -23,13 +23,14 @@
       max-width: 760px;
     }
     .sentence {
-      font-size: clamp(26px, 5vw, 40px);
+      font-size: clamp(24px, calc(5vw - 2px), 38px);
       font-weight: 800;
       line-height: 1.55;
       letter-spacing: -0.01em;
       text-align: right;
     }
     .token {
+      font-size: clamp(26px, 5vw, 40px);
       text-decoration: underline;
       text-decoration-thickness: 3px;
       text-underline-offset: 5px;
@@ -53,6 +54,16 @@
     .edit::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .edit-time { width: 5.5ch; }
     .edit-num { }
+    .edit-select {
+      font: inherit;
+      font-weight: 800;
+      border: none;
+      border-bottom: 3px solid #000;
+      background: transparent;
+      color: #000;
+      outline: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -60,14 +71,23 @@
     <div class="sentence">
       <!-- 今から / 時刻 -->
       <template v-if="editing === 'start'">
-        <input
+        <select
+          ref="startSelect"
+          class="edit edit-select"
+          v-model="startPickMode"
+          @change="onStartPickChange"
+          @blur="onStartSelectBlur"
+        >
+          <option value="now">今から</option>
+          <option value="fixed">時刻を指定</option>
+        </select><template v-if="startPickMode === 'fixed'"><input
           ref="startInput"
           class="edit edit-time"
           type="time"
           v-model="startInputValue"
           @blur="commitStart"
           @keydown.enter="commitStart"
-        />、</template><template v-else><span class="token" @click="startEdit('start')">{{ startLabel }}</span>、</template><!--
+        /></template>、</template><template v-else><span class="token" @click="startEdit('start')">{{ startLabel }}</span>、</template><!--
       --><template v-if="editing === 'total'"><input
           ref="totalInput"
           class="edit edit-num"
@@ -119,6 +139,8 @@
         const perInputValue = ref('');
         const minutesInputValue = ref('');
 
+        const startPickMode = ref('now');
+        const startSelect = ref(null);
         const startInput = ref(null);
         const totalInput = ref(null);
         const perInput = ref(null);
@@ -183,6 +205,7 @@
         function startEdit(field) {
           editing.value = field;
           if (field === 'start') {
+            startPickMode.value = startFixed.value === null ? 'now' : 'fixed';
             startInputValue.value = startFixed.value ?? '';
           } else if (field === 'total') {
             totalInputValue.value = total.value;
@@ -192,15 +215,35 @@
             minutesInputValue.value = minutes.value;
           }
           nextTick(() => {
-            const map = { start: startInput, total: totalInput, per: perInput, minutes: minutesInput };
+            const map = { start: startSelect, total: totalInput, per: perInput, minutes: minutesInput };
             const el = map[field]?.value;
             if (el) { el.focus(); if (el.select) el.select(); }
           });
         }
 
+        function onStartPickChange() {
+          if (startPickMode.value === 'now') {
+            startFixed.value = null;
+            editing.value = null;
+          } else {
+            nextTick(() => { if (startInput.value) startInput.value.focus(); });
+          }
+        }
+
+        function onStartSelectBlur() {
+          if (startPickMode.value === 'now') {
+            startFixed.value = null;
+            editing.value = null;
+          }
+        }
+
         function commitStart() {
-          const v = startInputValue.value;
-          startFixed.value = (v === '' || v == null) ? null : v;
+          if (startPickMode.value === 'fixed') {
+            const v = startInputValue.value;
+            startFixed.value = (v === '' || v == null) ? null : v;
+          } else {
+            startFixed.value = null;
+          }
           editing.value = null;
         }
 
@@ -216,12 +259,13 @@
 
         return {
           total, per, minutes, startFixed,
-          editing,
+          editing, startPickMode,
           startInputValue, totalInputValue, perInputValue, minutesInputValue,
-          startInput, totalInput, perInput, minutesInput,
+          startSelect, startInput, totalInput, perInput, minutesInput,
           startLabel, rotations, totalDuration, totalDurationLabel,
           endTimeLabel, nextDayLabel,
           numStyle, startEdit, commitStart, commitNumber,
+          onStartPickChange, onStartSelectBlur,
         };
       }
     }).mount('#app');
