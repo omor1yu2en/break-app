@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>休憩回し</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #ffffff;
+      color: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    #app {
+      width: 100%;
+      max-width: 760px;
+    }
+    .sentence {
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 800;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+      text-align: right;
+    }
+    .token {
+      text-decoration: underline;
+      text-decoration-thickness: 3px;
+      text-underline-offset: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .token:hover { opacity: 0.55; }
+    .edit {
+      font: inherit;
+      font-weight: 800;
+      text-align: center;
+      border: none;
+      border-bottom: 3px solid #000;
+      background: transparent;
+      color: #000;
+      outline: none;
+      padding: 0;
+      -moz-appearance: textfield;
+    }
+    .edit::-webkit-outer-spin-button,
+    .edit::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .edit-time { width: 5.5ch; }
+    .edit-num { }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="sentence">
+      <!-- 今から / 時刻 -->
+      <template v-if="editing === 'start'">
+        <input
+          ref="startInput"
+          class="edit edit-time"
+          type="time"
+          v-model="startInputValue"
+          @blur="commitStart"
+          @keydown.enter="commitStart"
+        />、</template><template v-else><span class="token" @click="startEdit('start')">{{ startLabel }}</span>、</template><!--
+      --><template v-if="editing === 'total'"><input
+          ref="totalInput"
+          class="edit edit-num"
+          :style="numStyle(total)"
+          type="number" min="0" inputmode="numeric"
+          v-model="totalInputValue"
+          @blur="commitNumber('total')"
+          @keydown.enter="commitNumber('total')"
+        /></template><template v-else><span class="token" @click="startEdit('total')">{{ total }}</span></template>人を<!--
+      --><template v-if="editing === 'per'"><input
+          ref="perInput"
+          class="edit edit-num"
+          :style="numStyle(per)"
+          type="number" min="1" inputmode="numeric"
+          v-model="perInputValue"
+          @blur="commitNumber('per')"
+          @keydown.enter="commitNumber('per')"
+        /></template><template v-else><span class="token" @click="startEdit('per')">{{ per }}</span></template>人ずつ、<br>
+      <!-- 分数 -->
+      <template v-if="editing === 'minutes'"><input
+          ref="minutesInput"
+          class="edit edit-num"
+          :style="numStyle(minutes)"
+          type="number" min="1" inputmode="numeric"
+          v-model="minutesInputValue"
+          @blur="commitNumber('minutes')"
+          @keydown.enter="commitNumber('minutes')"
+        /></template><template v-else><span class="token" @click="startEdit('minutes')">{{ minutes }}</span></template>分休憩を回すと、<br>
+      合計{{ totalDurationLabel }}かかり、<br>
+      {{ endTimeLabel }}に終わります。{{ nextDayLabel }}
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, nextTick } = Vue;
+
+    createApp({
+      setup() {
+        const total = ref(5);
+        const per = ref(1);
+        const minutes = ref(45);
+
+        // 開始時刻: null = 「今から」（現在時刻）。文字列 "HH:mm" = 固定時刻。
+        const startFixed = ref(null);
+
+        const editing = ref(null);
+        const startInputValue = ref('');
+        const totalInputValue = ref('');
+        const perInputValue = ref('');
+        const minutesInputValue = ref('');
+
+        const startInput = ref(null);
+        const totalInput = ref(null);
+        const perInput = ref(null);
+        const minutesInput = ref(null);
+
+        const startLabel = computed(() => {
+          if (startFixed.value === null) return '今から';
+          const [h, m] = startFixed.value.split(':');
+          return `${Number(h)}時${m}分から`;
+        });
+
+        // 開始時刻を「0時からの分」で返す
+        function startMinutesOfDay() {
+          if (startFixed.value === null) {
+            const now = new Date();
+            return now.getHours() * 60 + now.getMinutes();
+          }
+          const [h, m] = startFixed.value.split(':').map(Number);
+          return h * 60 + m;
+        }
+
+        const rotations = computed(() => {
+          const t = Number(total.value);
+          const p = Number(per.value);
+          if (p <= 0) return 0;
+          return Math.ceil(t / p);
+        });
+
+        const totalDuration = computed(() => Number(minutes.value) * rotations.value);
+
+        const totalDurationLabel = computed(() => {
+          const mins = totalDuration.value;
+          const h = Math.floor(mins / 60);
+          const m = mins % 60;
+          if (mins === 0) return '0分';
+          if (m === 0) return `${h}時間`;
+          if (h === 0) return `${m}分`;
+          return `${h}時間${m}分`;
+        });
+
+        const endTotalMinutes = computed(() => startMinutesOfDay() + totalDuration.value);
+
+        const endTimeLabel = computed(() => {
+          const tm = endTotalMinutes.value;
+          const h = Math.floor(tm / 60) % 24;
+          const m = tm % 60;
+          return `${h}時${String(m).padStart(2, '0')}分`;
+        });
+
+        const nextDayLabel = computed(() => {
+          const days = Math.floor(endTotalMinutes.value / (60 * 24));
+          if (days === 1) return '（翌日）';
+          if (days > 1) return `（${days}日後）`;
+          return '';
+        });
+
+        function numStyle(val) {
+          const len = String(val).length;
+          return { width: `${Math.max(len + 1, 2)}ch` };
+        }
+
+        function startEdit(field) {
+          editing.value = field;
+          if (field === 'start') {
+            startInputValue.value = startFixed.value ?? '';
+          } else if (field === 'total') {
+            totalInputValue.value = total.value;
+          } else if (field === 'per') {
+            perInputValue.value = per.value;
+          } else if (field === 'minutes') {
+            minutesInputValue.value = minutes.value;
+          }
+          nextTick(() => {
+            const map = { start: startInput, total: totalInput, per: perInput, minutes: minutesInput };
+            const el = map[field]?.value;
+            if (el) { el.focus(); if (el.select) el.select(); }
+          });
+        }
+
+        function commitStart() {
+          const v = startInputValue.value;
+          startFixed.value = (v === '' || v == null) ? null : v;
+          editing.value = null;
+        }
+
+        function commitNumber(field) {
+          const raw = { total: totalInputValue, per: perInputValue, minutes: minutesInputValue }[field].value;
+          let n = parseInt(raw, 10);
+          if (isNaN(n)) n = field === 'total' ? 0 : 1;
+          if (field === 'total') n = Math.max(0, n);
+          else n = Math.max(1, n);
+          ({ total, per, minutes }[field]).value = n;
+          editing.value = null;
+        }
+
+        return {
+          total, per, minutes, startFixed,
+          editing,
+          startInputValue, totalInputValue, perInputValue, minutesInputValue,
+          startInput, totalInput, perInput, minutesInput,
+          startLabel, rotations, totalDuration, totalDurationLabel,
+          endTimeLabel, nextDayLabel,
+          numStyle, startEdit, commitStart, commitNumber,
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
