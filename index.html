@@ -105,7 +105,7 @@
           v-model="totalInputValue"
           @blur="commitNumber('total')"
           @keydown.enter="commitNumber('total')"
-        /></template><template v-else><span class="token" @click="startEdit('total')">{{ total }}</span></template>人を<!--
+        /></template><template v-else><span class="token" @click="startEdit('total')">{{ total ?? '?' }}</span></template>人を<!--
       --><template v-if="editing === 'per'"><input
           ref="perInput"
           class="edit edit-num"
@@ -114,7 +114,7 @@
           v-model="perInputValue"
           @blur="commitNumber('per')"
           @keydown.enter="commitNumber('per')"
-        /></template><template v-else><span class="token" @click="startEdit('per')">{{ per }}</span></template>人ずつ、<br>
+        /></template><template v-else><span class="token" @click="startEdit('per')">{{ per ?? '?' }}</span></template>人ずつ、<br>
       <!-- 分数 -->
       <template v-if="editing === 'minutes'"><input
           ref="minutesInput"
@@ -124,9 +124,9 @@
           v-model="minutesInputValue"
           @blur="commitNumber('minutes')"
           @keydown.enter="commitNumber('minutes')"
-        /></template><template v-else><span class="token" @click="startEdit('minutes')">{{ minutes }}</span></template>分休憩を回すと、<br>
-      合計<template v-for="part in totalDurationParts"><span class="num">{{ part.n }}</span><span class="caption">{{ part.label }}</span></template>かかり、<br>
-      <span class="num">{{ endTimeParts.h }}</span><span class="caption">時</span><span class="num">{{ endTimeParts.m }}</span><span class="caption">分</span>に終わります。{{ nextDayLabel }}
+        /></template><template v-else><span class="token" @click="startEdit('minutes')">{{ minutes ?? '?' }}</span></template>分休憩を回すと、<br>
+      合計<template v-if="allSet"><template v-for="part in totalDurationParts"><span class="num">{{ part.n }}</span><span class="caption">{{ part.label }}</span></template></template><template v-else><span class="num">?</span></template>かかり、<br>
+      <template v-if="allSet"><span class="num">{{ endTimeParts.h }}</span><span class="caption">時</span><span class="num">{{ endTimeParts.m }}</span><span class="caption">分</span>に終わります。{{ nextDayLabel }}</template><template v-else><span class="num">?</span><span class="caption">時</span><span class="num">?</span><span class="caption">分</span>に終わります。</template>
     </div>
   </div>
   <b0nd0-footer></b0nd0-footer>
@@ -136,9 +136,9 @@
 
     createApp({
       setup() {
-        const total = ref(5);
-        const per = ref(1);
-        const minutes = ref(45);
+        const total = ref(null);
+        const per = ref(null);
+        const minutes = ref(null);
 
         // 開始時刻: null = 「今から」（現在時刻）。文字列 "HH:mm" = 固定時刻。
         const startFixed = ref(null);
@@ -175,6 +175,8 @@
           const [h, m] = startFixed.value.split(':').map(Number);
           return h * 60 + m;
         }
+
+        const allSet = computed(() => total.value !== null && per.value !== null && minutes.value !== null);
 
         const rotations = computed(() => {
           const t = Number(total.value);
@@ -278,16 +280,19 @@
         function commitNumber(field) {
           const raw = { total: totalInputValue, per: perInputValue, minutes: minutesInputValue }[field].value;
           let n = parseInt(raw, 10);
-          if (isNaN(n)) n = field === 'total' ? 0 : 1;
-          if (field === 'total') n = Math.max(0, n);
-          else n = Math.max(1, n);
-          ({ total, per, minutes }[field]).value = n;
+          if (isNaN(n)) {
+            ({ total, per, minutes }[field]).value = null;
+          } else {
+            if (field === 'total') n = Math.max(0, n);
+            else n = Math.max(1, n);
+            ({ total, per, minutes }[field]).value = n;
+          }
           editing.value = null;
         }
 
         return {
           total, per, minutes, startFixed,
-          editing,
+          editing, allSet,
           startInputValue, totalInputValue, perInputValue, minutesInputValue,
           startInput, totalInput, perInput, minutesInput,
           startLabel, startParts, rotations, totalDuration, totalDurationLabel,
