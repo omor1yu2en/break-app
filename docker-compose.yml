@@ -6,3 +6,4 @@ services:
     restart: unless-stopped
     volumes:
       - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./footer.js:/usr/share/nginx/html/footer.js:ro

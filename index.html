@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>休憩回し</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="footer.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; -webkit-text-size-adjust: 100%; }
@@ -123,6 +124,7 @@
       <span class="num">{{ endTimeParts.h }}</span><span class="caption">時</span><span class="num">{{ endTimeParts.m }}</span><span class="caption">分</span>に終わります。{{ nextDayLabel }}
     </div>
   </div>
+  <b0nd0-footer></b0nd0-footer>
 
   <script>
     const { createApp, ref, computed, nextTick } = Vue;
