@@ -70,6 +70,17 @@
     .edit::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .edit-time { width: 5.5ch; }
     .edit-num { }
+    .page-title {
+      position: fixed;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+      color: rgba(0, 0, 0, 0.55);
+      white-space: nowrap;
+    }
     .edit-select {
       font: inherit;
       font-size: max(16px, 1em);
@@ -84,6 +95,7 @@
   </style>
 </head>
 <body>
+  <p class="page-title">休憩回し計算機</p>
   <div id="app">
     <div class="sentence">
       <!-- 今から / 時刻 -->
