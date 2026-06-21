@@ -90,7 +90,7 @@
           v-model="startInputValue"
           @blur="commitStart"
           @keydown.enter="commitStart"
-        />、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span>{{ startParts.m }}<span class="caption">分から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
+        />、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span><template v-if="startParts.m !== '00'">{{ startParts.m }}<span class="caption">分</span></template><span class="caption">から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
       --><template v-if="editing === 'total'"><input
           ref="totalInput"
           class="edit edit-num"
