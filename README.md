@@ -1,14 +1,14 @@
-# 休憩回し
+# Break Scheduler
 
-開始時刻・人数・休憩分数を入力すると、終了時刻を計算する1画面ツール。
+A single-page tool that calculates end time based on start time, group size, and break duration.
 
 **Live:** https://break.b0nd0.com
 
-## 使い方
+## Usage
 
-下線のある数字をタップして編集 → Enter または外クリックで確定。
+Tap any underlined value to edit → confirm with Enter or click outside.
 
-## ローカル起動
+## Run locally
 
 ```
 docker compose up -d
