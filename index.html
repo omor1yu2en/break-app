@@ -229,7 +229,7 @@
     </div>
     <div class="slide slide--schedule">
       <p v-if="!allSet" class="slide-message slide-message--center">← 左で入力してください</p>
-      <p v-else-if="rotations > 15" class="slide-message slide-message--center">ちょっと多いですね。<br>b0nd0が対応できるのは１５組までです。</p>
+      <p v-else-if="rotations > 15" class="slide-message slide-message--center">ちょっと多いですね。<br>b0nd0は１５組までしか対応できません。</p>
       <div v-else class="schedule-scroll">
         <div class="schedule">
           <template v-for="item in scheduleItems" :key="item.group">
