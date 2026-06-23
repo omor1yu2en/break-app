@@ -112,9 +112,16 @@
     }
     .slide--schedule {
       justify-content: flex-start;
+      padding-top: 3rem;
+    }
+    .schedule-scroll {
+      flex: 1;
+      width: 100%;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding-bottom: 2rem;
     }
     .schedule {
@@ -212,14 +219,16 @@
       </div>
     </div>
     <div class="slide slide--schedule">
-      <p v-if="!allSet" class="slide-message">← 左で入力してください</p>
-      <p v-else-if="total > 30" class="slide-message">多いですね。b0nd0には厳しいです。</p>
-      <div v-else class="schedule">
-        <template v-for="item in scheduleItems" :key="item.person">
-          <span class="s-person">{{ item.person }}人目</span>
-          <span class="s-time-cell"><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート</span>
-          <span class="s-time-cell"><span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</span>
-        </template>
+      <div class="schedule-scroll">
+        <p v-if="!allSet" class="slide-message">← 左で入力してください</p>
+        <p v-else-if="rotations > 15" class="slide-message">おつかれさまです。ちょっと多すぎますね。b0nd0はNGな人数です。</p>
+        <div v-else class="schedule">
+          <template v-for="item in scheduleItems" :key="item.group">
+            <span class="s-person">{{ item.group }}組目</span>
+            <span class="s-time-cell"><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート</span>
+            <span class="s-time-cell"><span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</span>
+          </template>
+        </div>
       </div>
     </div>
   </div>
@@ -305,18 +314,16 @@
         }
 
         const scheduleItems = computed(() => {
-          if (!allSet.value || Number(total.value) > 30) return [];
-          const n = Number(total.value);
-          const p = Number(per.value);
+          if (!allSet.value || rotations.value > 15) return [];
+          const r = rotations.value;
           const m = Number(minutes.value);
           const base = startMinutesOfDay();
           const items = [];
-          for (let i = 0; i < n; i++) {
-            const rotation = Math.floor(i / p);
-            const sm = base + rotation * m;
+          for (let i = 0; i < r; i++) {
+            const sm = base + i * m;
             const em = sm + m;
             items.push({
-              person: toFW(i + 1),
+              group: toFW(i + 1),
               startH: String(Math.floor(sm / 60) % 24),
               startM: String(sm % 60).padStart(2, '0'),
               startNextDay: sm >= 1440,
