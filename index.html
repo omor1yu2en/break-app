@@ -234,8 +234,8 @@
         <div class="schedule">
           <template v-for="item in scheduleItems" :key="item.group">
             <span class="s-person">{{ item.group }}組目</span>
-            <span class="s-time-cell"><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート</span>
-            <span class="s-time-cell"><span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</span>
+            <span class="s-time-cell"><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><span class="s-next" :style="item.startNextDay ? '' : 'visibility:hidden'">（翌日）</span>スタート</span>
+            <span class="s-time-cell"><span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><span class="s-next" :style="item.endNextDay ? '' : 'visibility:hidden'">（翌日）</span>終了</span>
           </template>
         </div>
       </div>
