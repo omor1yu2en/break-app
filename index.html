@@ -170,6 +170,12 @@
       transition: background 0.25s;
     }
     .dot.active { background: rgba(0, 0, 0, 0.75); }
+    @keyframes dot-bounce {
+      0%, 100% { transform: translateY(0); }
+      35%       { transform: translateY(-6px); }
+      65%       { transform: translateY(-2px); }
+    }
+    .dot:last-child { animation: dot-bounce 0.55s ease-in-out 0.9s 3; }
   </style>
 </head>
 <body>
