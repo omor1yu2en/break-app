@@ -228,7 +228,7 @@
     <div class="slide slide--schedule">
       <p v-if="!allSet" class="slide-message slide-message--center">← 左で入力してください</p>
       <div v-else class="schedule-scroll">
-        <p v-if="rotations > 15" class="slide-message">おつかれさまです。ちょっと多すぎますね。b0nd0はNGな人数です。</p>
+        <p v-if="rotations > 15" class="slide-message">ちょっと多いですね。b0nd0が対応できるのは１５組までです。</p>
         <div v-else class="schedule">
           <template v-for="item in scheduleItems" :key="item.group">
             <span class="s-person">{{ item.group }}組目</span>
