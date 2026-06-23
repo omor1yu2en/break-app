@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>休憩回し</title>
+  <title>休憩まわし計算機</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -14,8 +14,8 @@
     body {
       position: fixed;
       inset: 0;
-      background: #ffffff;
-      color: #000000;
+      background: #fff;
+      color: #000;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
       display: flex;
       flex-direction: column;
@@ -33,7 +33,6 @@
       justify-content: center;
     }
     .sentence {
-      font-size: 1em;
       font-weight: 800;
       line-height: 1.55;
       letter-spacing: -0.01em;
@@ -81,17 +80,6 @@
       white-space: nowrap;
       border: 1px solid rgba(0, 0, 0, 0.12);
       padding: 0.3rem 0.9rem;
-    }
-    .edit-select {
-      font: inherit;
-      font-size: max(16px, 1em);
-      font-weight: 800;
-      border: none;
-      border-bottom: 3px solid #000;
-      background: transparent;
-      color: #000;
-      outline: none;
-      cursor: pointer;
     }
     .slider {
       flex: 1;
@@ -197,7 +185,7 @@
             />、</template><template v-else><span class="token" @click="startEdit('start')"><template v-if="startParts">{{ startParts.h }}<span class="caption">時</span><template v-if="startParts.m !== '00'">{{ startParts.m }}<span class="caption">分</span></template><span class="caption">から</span></template><template v-else>今<span class="caption">から</span></template></span>、</template><!--
           --><template v-if="editing === 'total'"><input
               ref="totalInput"
-              class="edit edit-num"
+              class="edit"
               :style="numStyle(total)"
               type="number" min="0" inputmode="numeric"
               v-model="totalInputValue"
@@ -206,7 +194,7 @@
             /></template><template v-else><span class="token" @click="startEdit('total')">{{ total ?? '?' }}</span></template>人を<!--
           --><template v-if="editing === 'per'"><input
               ref="perInput"
-              class="edit edit-num"
+              class="edit"
               :style="numStyle(per)"
               type="number" min="1" inputmode="numeric"
               v-model="perInputValue"
@@ -215,7 +203,7 @@
             /></template><template v-else><span class="token" @click="startEdit('per')">{{ per ?? '?' }}</span></template>人ずつ、<br>
           <template v-if="editing === 'minutes'"><input
               ref="minutesInput"
-              class="edit edit-num"
+              class="edit"
               :style="numStyle(minutes)"
               type="number" min="1" inputmode="numeric"
               v-model="minutesInputValue"
@@ -241,7 +229,7 @@
       </div>
     </div>
   </div>
-  <div class="page-dots" id="pageDots">
+  <div class="page-dots">
     <span class="dot active"></span>
     <span class="dot"></span>
   </div>
