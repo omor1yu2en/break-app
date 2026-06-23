@@ -108,10 +108,31 @@
       align-items: center;
       justify-content: center;
     }
-    .coming-soon {
+    .schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45em;
+      font-size: clamp(10px, 3.2vw, 17px);
+      text-align: right;
+    }
+    .schedule-row {
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      line-height: 1.5;
+    }
+    .s-person {
+      font-size: 0.85em;
+      font-weight: 300;
+      color: rgba(0, 0, 0, 0.4);
+    }
+    .s-num { font-size: 1.75em; }
+    .s-unit { font-size: 0.75em; font-weight: 300; }
+    .s-next { font-size: 0.6em; font-weight: 300; letter-spacing: 0.02em; color: rgba(0, 0, 0, 0.55); }
+    .slide-message {
       font-size: 13px;
       font-weight: 200;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
       color: rgba(0, 0, 0, 0.35);
     }
     .page-dots {
@@ -179,7 +200,11 @@
       </div>
     </div>
     <div class="slide">
-      <p class="coming-soon">近日公開</p>
+      <p v-if="!allSet" class="slide-message">← 左で入力してください</p>
+      <p v-else-if="total > 9" class="slide-message">多いですね。b0nd0には厳しいです。</p>
+      <div v-else class="schedule">
+        <div v-for="item in scheduleItems" :key="item.person" class="schedule-row"><span class="s-person">{{ item.person }}人目　</span><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート　<span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</div>
+      </div>
     </div>
   </div>
   <div class="page-dots" id="pageDots">
@@ -259,6 +284,32 @@
           return '';
         });
 
+        const FW = ['１','２','３','４','５','６','７','８','９'];
+
+        const scheduleItems = computed(() => {
+          if (!allSet.value || Number(total.value) > 9) return [];
+          const n = Number(total.value);
+          const p = Number(per.value);
+          const m = Number(minutes.value);
+          const base = startMinutesOfDay();
+          const items = [];
+          for (let i = 0; i < n; i++) {
+            const rotation = Math.floor(i / p);
+            const sm = base + rotation * m;
+            const em = sm + m;
+            items.push({
+              person: FW[i],
+              startH: String(Math.floor(sm / 60) % 24),
+              startM: String(sm % 60).padStart(2, '0'),
+              startNextDay: sm >= 1440,
+              endH: String(Math.floor(em / 60) % 24),
+              endM: String(em % 60).padStart(2, '0'),
+              endNextDay: em >= 1440,
+            });
+          }
+          return items;
+        });
+
         function numStyle(val) {
           const len = String(val).length;
           return { width: `${Math.max(len + 1, 2)}ch` };
@@ -325,10 +376,11 @@
           startInputValue, totalInputValue, perInputValue, minutesInputValue,
           startInput, totalInput, perInput, minutesInput,
           startParts, rotations, totalDurationParts, endTimeParts, nextDayLabel,
+          scheduleItems,
           numStyle, startEdit, commitStart, commitNumber,
         };
       }
-    }).mount('#app');
+    }).mount('#slider');
 
     (function () {
       var slider = document.getElementById('slider');
