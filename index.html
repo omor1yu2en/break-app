@@ -97,6 +97,7 @@
       flex: 1;
       width: 100%;
       display: flex;
+      overflow: hidden;
       transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
       user-select: none;
@@ -109,22 +110,25 @@
       justify-content: center;
     }
     .schedule {
-      display: flex;
-      flex-direction: column;
-      gap: 0.45em;
+      display: grid;
+      grid-template-columns: auto auto auto;
+      column-gap: 0.6em;
+      row-gap: 0.5em;
+      align-items: baseline;
       font-size: clamp(10px, 3.2vw, 17px);
-      text-align: right;
-    }
-    .schedule-row {
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      line-height: 1.5;
     }
     .s-person {
       font-size: 0.85em;
       font-weight: 300;
       color: rgba(0, 0, 0, 0.4);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .s-time-cell {
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      text-align: right;
     }
     .s-num { font-size: 1.75em; }
     .s-unit { font-size: 0.75em; font-weight: 300; }
@@ -203,7 +207,11 @@
       <p v-if="!allSet" class="slide-message">← 左で入力してください</p>
       <p v-else-if="total > 9" class="slide-message">多いですね。b0nd0には厳しいです。</p>
       <div v-else class="schedule">
-        <div v-for="item in scheduleItems" :key="item.person" class="schedule-row"><span class="s-person">{{ item.person }}人目　</span><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート　<span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</div>
+        <template v-for="item in scheduleItems" :key="item.person">
+          <span class="s-person">{{ item.person }}人目</span>
+          <span class="s-time-cell"><span class="s-num">{{ item.startH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.startM }}</span><span class="s-unit">分</span><template v-if="item.startNextDay"><span class="s-next">（翌日）</span></template>スタート</span>
+          <span class="s-time-cell"><span class="s-num">{{ item.endH }}</span><span class="s-unit">時</span><span class="s-num">{{ item.endM }}</span><span class="s-unit">分</span><template v-if="item.endNextDay"><span class="s-next">（翌日）</span></template>終了</span>
+        </template>
       </div>
     </div>
   </div>
