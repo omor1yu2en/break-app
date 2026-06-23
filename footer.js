@@ -7,7 +7,7 @@ class B0nd0Footer extends HTMLElement {
           display: block;
           text-align: center;
           padding: 1.5rem 0 calc(1rem + 5.5px);
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
           font-size: 11px;
           font-weight: 200;
           letter-spacing: 0.05em;

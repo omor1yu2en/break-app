@@ -6,12 +6,12 @@ A single-page tool that calculates end time based on start time, group size, and
 
 ## Usage
 
-Tap any underlined value to edit → confirm with Enter or click outside.
+Tap any underlined value to edit → confirm with Enter or tap outside.
 
 ## Run locally
 
 ```
-docker compose up -d
+python3 -m http.server
 ```
 
-http://localhost:8080
+http://localhost:8000
