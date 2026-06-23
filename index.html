@@ -154,7 +154,7 @@
       white-space: nowrap;
       text-align: right;
     }
-    .s-num { font-size: 1.75em; }
+    .s-num { font-size: 1.75em; font-variant-numeric: tabular-nums; }
     .s-unit { font-size: 0.75em; font-weight: 300; }
     .s-next { font-size: 0.6em; font-weight: 300; letter-spacing: 0.02em; color: rgba(0, 0, 0, 0.55); }
     .slide-message {
@@ -333,10 +333,10 @@
             const em = sm + m;
             items.push({
               group: toFW(i + 1),
-              startH: String(Math.floor(sm / 60) % 24),
+              startH: String(Math.floor(sm / 60) % 24).padStart(2, '0'),
               startM: String(sm % 60).padStart(2, '0'),
               startNextDay: sm >= 1440,
-              endH: String(Math.floor(em / 60) % 24),
+              endH: String(Math.floor(em / 60) % 24).padStart(2, '0'),
               endM: String(em % 60).padStart(2, '0'),
               endNextDay: em >= 1440,
             });
