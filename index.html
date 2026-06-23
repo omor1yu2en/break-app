@@ -178,7 +178,7 @@
       28%  { transform: translateY(0); }
       100% { transform: translateY(0); }
     }
-    .dot:last-child { animation: dot-bounce 3s ease-in-out 0.9s infinite; }
+    .dot--bounce { animation: dot-bounce 3s ease-in-out 0.9s infinite; }
   </style>
 </head>
 <body>
@@ -245,7 +245,7 @@
   </div>
   <div class="page-dots">
     <span class="dot active"></span>
-    <span class="dot"></span>
+    <span class="dot dot--bounce"></span>
   </div>
   <b0nd0-footer></b0nd0-footer>
 
@@ -426,7 +426,16 @@
       function goTo(page) {
         current = page;
         slider.style.transform = 'translateX(-' + (page * 100) + '%)';
-        dots.forEach(function (d, i) { d.classList.toggle('active', i === page); });
+        dots.forEach(function (d, i) {
+          d.classList.toggle('active', i === page);
+          if (i !== page) {
+            d.classList.remove('dot--bounce');
+            void d.offsetWidth;
+            d.classList.add('dot--bounce');
+          } else {
+            d.classList.remove('dot--bounce');
+          }
+        });
       }
 
       document.addEventListener('touchstart', function (e) { startX = e.touches[0].clientX; }, { passive: true });
