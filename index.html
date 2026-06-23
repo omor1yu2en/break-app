@@ -110,6 +110,13 @@
       justify-content: center;
       padding: 0 max(2rem, env(safe-area-inset-right)) 0 max(2rem, env(safe-area-inset-left));
     }
+    .slide--schedule {
+      justify-content: flex-start;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-top: 3rem;
+      padding-bottom: 2rem;
+    }
     .schedule {
       display: grid;
       grid-template-columns: auto auto auto;
@@ -204,9 +211,9 @@
         </div>
       </div>
     </div>
-    <div class="slide">
+    <div class="slide slide--schedule">
       <p v-if="!allSet" class="slide-message">← 左で入力してください</p>
-      <p v-else-if="total > 9" class="slide-message">多いですね。b0nd0には厳しいです。</p>
+      <p v-else-if="total > 30" class="slide-message">多いですね。b0nd0には厳しいです。</p>
       <div v-else class="schedule">
         <template v-for="item in scheduleItems" :key="item.person">
           <span class="s-person">{{ item.person }}人目</span>
@@ -293,10 +300,12 @@
           return '';
         });
 
-        const FW = ['１','２','３','４','５','６','７','８','９'];
+        function toFW(n) {
+          return String(n).split('').map(function (d) { return '０１２３４５６７８９'[+d]; }).join('');
+        }
 
         const scheduleItems = computed(() => {
-          if (!allSet.value || Number(total.value) > 9) return [];
+          if (!allSet.value || Number(total.value) > 30) return [];
           const n = Number(total.value);
           const p = Number(per.value);
           const m = Number(minutes.value);
@@ -307,7 +316,7 @@
             const sm = base + rotation * m;
             const em = sm + m;
             items.push({
-              person: FW[i],
+              person: toFW(i + 1),
               startH: String(Math.floor(sm / 60) % 24),
               startM: String(sm % 60).padStart(2, '0'),
               startNextDay: sm >= 1440,
